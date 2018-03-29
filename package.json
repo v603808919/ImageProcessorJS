@@ -1,0 +1,23 @@
+{
+  "name": "rdb_watermark_js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "watermark.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaiklSokolov/rdb_watermark_js.git"
+  },
+  "author": "Michael Sokolov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MaiklSokolov/rdb_watermark_js/issues"
+  },
+  "homepage": "https://github.com/MaiklSokolov/rdb_watermark_js#readme",
+  "dependencies": {
+    "image-watermark": "0.0.7",
+    "mcanvas": "^1.3.0"
+  }
+}
