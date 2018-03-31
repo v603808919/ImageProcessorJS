@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/MaiklSokolov/rdb_watermark_js#readme",
   "dependencies": {
-    "image-watermark": "0.0.7"
+    "image-watermark": "0.0.7",
+    "text-watermark": "^1.0.1"
   }
 }
