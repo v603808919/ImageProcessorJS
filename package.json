@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/RDB24/ImageProcessorJS#readme",
   "dependencies": {
+    "async": "^2.6.0",
     "image-watermark": "0.0.7",
+    "node-dir": "^0.1.17",
     "text-watermark": "^1.0.1"
   }
 }
