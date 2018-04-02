@@ -56,28 +56,68 @@ function fileHash(filename, algorithm = 'md5') {
   }
   return p;
 }, []); 
- console.log(files);
+// console.log(files);
 
 
 
-// Перебирает файлы в массиве и записывает шеши в один файл
-/* (function makeHash(i) {
- console.log(i + ': ' + imgFiledir + files[i]);
-  const fd = fs.createReadStream(imgFiledir + files[i]);
-  const hash = crypto.createHash("md5");
-  hash.setEncoding("hex");
-  fd.on("end", () => {
-      hash.end();
-      fs.appendFileSync("hash", `${files[i++]}:${hash.read()}\n`);
-      if (i < files.length) {
-          makeHash(i);
-      }
+
+
+
+
+// проверяем соовтествует ли Hash имеющемуся файлу - boolean
+// false - или Шеша нет или он не соответствует
+// true - с изобрадением все ок, оно промаркировано.
+(function checkHashfile(img) {
+  const HashFileName = img + '.hash' ;  
+
+  const imgfd = fs.createReadStream(img);
+  const imghash = crypto.createHash("md5");
+  imghash.setEncoding("hex");
+ 
+  //console.log(imghash);
+
+  //Проверка существования файла Hash
+  fs.readFile(HashFileName, (err, data) => {
+    if (err) {
+      console.log('no file')
+      return false;
+      throw (err);
+    } else {
+      const HashFile = data.toString('utf8');
+     
+      imgfd.on('data', function (data) {
+        imghash.update(data)
+      })
+      // making digest
+      imgfd.on('end', function () {
+        const hashimg = imghash.digest('hex');
+        console.log(hashimg);
+        console.log(HashFile);
+        if (hashimg === HashFile) {
+            console.log('true');
+            return true;
+        } else {
+            console.log('false');
+            return false
+        }
+        
+      })
+    
+      //fd.pipe(hash);
+
+    }
+    
   });
 
-  fd.pipe(hash);
-})(0);
- */
 
+ 
+})(imgFilePath);
+
+
+
+
+
+// Создаем Hash файл
 function makeHashfile(img) {
    const fd = fs.createReadStream(img);
    const hash = crypto.createHash("md5");
@@ -95,13 +135,13 @@ function makeHashfile(img) {
 
 
  // Ставим водный знак на конкретный файл
- watermark.addWatermark(imgFilePath, options, function(err){
+/*  watermark.addWatermark(imgFilePath, options, function(err){
   if(err)
       return console.log(err);
   if (!err)
-      makeHashfile(imgFilePath);
+      makeHashfile(imgFilePath); //Создаем Hash файл
   return console.log("Successful - no error");
-}); 
+});  */
 
 
 
