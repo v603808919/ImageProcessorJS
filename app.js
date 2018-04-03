@@ -11,7 +11,7 @@ let async = require('async');
 
 //console.log('Start update img');
 
-
+const regexpImg = /\.(?:jp(?:e?g|e|2)|png)$/; // Регулярное выражение для отбора файлов изображений 
 
 let options = {
     'text' : 'hvac-store.com',
@@ -51,12 +51,15 @@ function fileHash(filename, algorithm = 'md5') {
 
 // Спсисок файлов дирректории
  const files = fs.readdirSync(imgFiledir).reduce((p, c) => {
-  if (fs.statSync(imgFiledir + c).isFile()) {
-      p.push(c);
+  if (fs.statSync(imgFiledir + c).isFile()) {   // отбираем каталоги
+      if (regexpImg.exec(c)) {    // отбираем файлы
+        p.push(c);
+      }
   }
   return p;
 }, []); 
-// console.log(files);
+
+console.log(files);
 
 
 
