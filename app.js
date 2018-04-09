@@ -124,7 +124,8 @@ function enumeration(img_enumeration) { // Последовательный пе
     } else { // 
       if (imgNum < fileslength) {  // Если массив еще не кончился
         console.log("WOVM - Start next loop - " + imgNum);
-        enumeration(imgFiledir + files[imgNum]); //Старт следующего цикла
+        //enumeration(imgFiledir + files[imgNum]); //Старт следующего цикла
+        setTimeout(enumeration, 1000, imgFiledir + files[imgNum]); // Если нет файла запускаем еще раз с задержкой 1с
       }
 
     }
