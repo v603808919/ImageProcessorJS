@@ -5,6 +5,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Demo folder
+demo/
+
 # Runtime data
 pids
 *.pid
@@ -16,6 +19,9 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+
+#‎ Resilio Sync 
+.sync/
 
 # nyc test coverage
 .nyc_output
