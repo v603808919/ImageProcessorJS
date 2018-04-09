@@ -20,7 +20,7 @@ let options = {
 
 
 //let imgFilePath = __dirname + "/demo/api.png";
-let imgFiledir = "/modulesjs/ImageProcessorJS/demo/";
+let imgFiledir = "/web/ig/img/magic360/";
 
 // Спсисок файлов дирректории
 const files = fs.readdirSync(imgFiledir).reduce((p, c) => {
@@ -95,36 +95,43 @@ for (let i = 0; i < fileslength; i = i + maxOneTimeRequest) {
 // Запускаем перебр послеловательно
 let imgFilePathFirst = imgFiledir + files[0];
 var imgNum = 0;
+enumeration(imgFilePathFirst); //Запуск
 
-checkHashfile(imgFilePathFirst, (err, data) => {
-  console.log("start callback imgFilePathFirst " + imgNum + ". data: " + data);
-  let imgFilePath = imgFiledir + files[imgNum];
-  imgNum++;
 
-  if (!data) {
-    // Ставим водный знак на конкретный файл
-    console.log("start  watermark - " + files[imgNum] );
-    watermark.embedWatermarkWithCb(imgFilePath, options, function (err) {
+
+function enumeration(img_enumeration) { // Последовательный перебор значения
+
+
+  checkHashfile(img_enumeration, (err, data) => { // Проверка конкретного значения и перзапуск петли
+    console.log("start callback img_enumeration - checkHashfile  " + imgNum + ". data: " + data);
+    let imgFilePath = imgFiledir + files[imgNum];
+    imgNum++;
+
+    if (!data) {
+      // Ставим водный знак на конкретный файл
+      console.log("start  watermark - " + files[imgNum]);
+      watermark.embedWatermarkWithCb(imgFilePath, options, function (err) {
+        if (imgNum < fileslength) {  // Если массив еще не кончился
+          console.log("Start next loop - " + imgNum);
+          enumeration(imgFiledir + files[imgNum]); //Старт следующего цикла
+        }
+        if (err)
+          return console.log(err);
+        if (!err)
+          makeHashfile(imgFilePath); //Создаем Hash файл
+        return console.log("Successful - no error " + imgFilePath);
+      });
+    } else { // 
       if (imgNum < fileslength) {  // Если массив еще не кончился
-        console.log("Start next loop - " + imgNum);
-        //checkHashfile(imgFiledir + files[imgNum]); //коментируем закольцовывание
+        console.log("WOVM - Start next loop - " + imgNum);
+        enumeration(imgFiledir + files[imgNum]); //Старт следующего цикла
       }
-      if (err)
-        return console.log(err);
-      if (!err)
-        makeHashfile(imgFilePath); //Создаем Hash файл
-      return console.log("Successful - no error " + imgFilePath);
-    });
-  } else { // 
-    if (imgNum < fileslength) {  // Если массив еще не кончился
-      console.log("WOVM - Start next loop - " + imgNum);
-      //checkHashfile(imgFiledir + files[imgNum]); //коментируем закольцовывание
+
     }
 
-  }
+  });
 
-}) ;
-
+}
 
 /* 
 // тест 
@@ -173,7 +180,7 @@ function checkHashfile(img, callback) {
         } else {
           console.log("HashFileName - false " + img);
           //return false
-          return callback(null,false);
+          return callback(null, false);
         }
 
       });
