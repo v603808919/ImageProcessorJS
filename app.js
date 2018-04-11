@@ -1,4 +1,3 @@
-
 "use strict";
 
 let fs = require("fs");
@@ -8,7 +7,7 @@ let crypto = require("crypto");
 //let async = require("async");
 
 
-//const maxOneTimeRequest = 50;
+/////////////////////////////////////////// Настройки /////////////////////////////////////////////
 
 const regexpImg = /\.(?:jp(?:e?g|e|2)|png)$/; // Регулярное выражение для отбора файлов изображений 
 
@@ -18,130 +17,122 @@ let options = {
 };
 
 
+let imgdirs = ["/web/ig/img/p/1/0/8/4/" ,"/web/ig/img/magic360/" , "/web/ig/img/p/1/0/8/5/"];
 
-//let imgFilePath = __dirname + "/demo/api.png";
-let imgFiledir = "/web/ig/img/magic360/";
-
-// Спсисок файлов дирректории
-const files = fs.readdirSync(imgFiledir).reduce((p, c) => {
-  if (fs.statSync(imgFiledir + c).isFile()) {   // отбираем каталоги
-    if (regexpImg.exec(c)) {    // отбираем файлы
-      p.push(c);
-    }
-  }
-  return p;
-}, []);
+let maxStream = 50; // количество потоков 
 
 
-console.log(files);
+///////////////////////////////// косяки /////////////////////////////////////
+var dirNum = 0;
+// данные парамтеры нужно передавать в callback
 
 
 
-/* // Перебираем все отобранные файлы
-files.forEach(function (item, i, arr) {
-  
-  let imgFilePath = imgFiledir + item;
-  console.log("forEach - " + imgFilePath);
-  if (!(checkHashfile(imgFilePath)) ) {
-    // Ставим водный знак на конкретный файл
-    console.log("start  watermark - " + imgFilePath);
-    watermark.addWatermark(imgFilePath, options, function (err) {
-      if (err)
-        return console.log(err);
-      if (!err)
-        makeHashfile(imgFilePath); //Создаем Hash файл
-      return console.log("Successful - no error " + item);
-    });
-  }
-}); */
+/////////////////////////////////////////// Перебор каталогов /////////////////////////////////////////////
+let dirslength = imgdirs.length; //Запоминаем длинну массива директорий
+console.log("dirslength: " + dirslength);
 
 
 
-const fileslength = files.length; //Запоминаем длинну массива 
-console.log("fileslength: " + fileslength);
-/*
-for (let i = 0; i < fileslength; i = i + maxOneTimeRequest) {
+// Запускаем перебр каталогов послеловательно
+let imgdirFirst = imgdirs[dirNum];
+enumerationAllDir(imgdirFirst); //Запуск
 
-  let maxj = i + maxOneTimeRequest; // вычисляем границы
-  if (maxj > fileslength) {
-    maxj = fileslength;
-  }
 
-  for (let j = i; j < maxj; j++) {
-    console.log(j);
-    
-    let imgFilePath = imgFiledir + files[j];
-    console.log("forEach - " + imgFilePath);
-  
-    checkHashfile(imgFilePath, function(check) {
-      if (!check) {
-        // Ставим водный знак на конкретный файл
-        console.log("start  watermark - " + imgFilePath);
-        watermark.embedWatermarkWithCb(imgFilePath, options, function (err) {
-          if (err)
-            return console.log(err);
-          if (!err)
-            makeHashfile(imgFilePath); //Создаем Hash файл
-          return console.log("Successful - no error " + files[j]);
-        });
+
+function enumerationAllDir(dir_enumeration) {
+
+  console.log("Start folder " + dir_enumeration);
+  // Спсисок файлов дирректории
+  let files = fs.readdirSync(dir_enumeration).reduce((p, c) => {
+    if (fs.statSync(dir_enumeration + c).isFile()) { // отбираем каталоги
+      if (regexpImg.exec(c)) { // отбираем файлы
+        p.push(c);
       }
-  
-    }) ;
-
-  }
-
-}*/
-
-// Запускаем перебр послеловательно
-let imgFilePathFirst = imgFiledir + files[0];
-var imgNum = 0;
-enumeration(imgFilePathFirst); //Запуск
-
-
-
-function enumeration(img_enumeration) { // Последовательный перебор значения
-
-
-  checkHashfile(img_enumeration, (err, data) => { // Проверка конкретного значения и перзапуск петли
-    console.log("start callback img_enumeration - checkHashfile  " + imgNum + ". data: " + data);
-    let imgFilePath = imgFiledir + files[imgNum];
-    imgNum++;
-
-    if (!data) {
-      // Ставим водный знак на конкретный файл
-      console.log("start  watermark - " + files[imgNum]);
-      watermark.embedWatermarkWithCb(imgFilePath, options, function (err) {
-        if (imgNum < fileslength) {  // Если массив еще не кончился
-          console.log("Start next loop - " + imgNum);
-          enumeration(imgFiledir + files[imgNum]); //Старт следующего цикла
-        }
-        if (err)
-          return console.log(err);
-        if (!err)
-          makeHashfile(imgFilePath); //Создаем Hash файл
-        return console.log("Successful - no error " + imgFilePath);
-      });
-    } else { // 
-      if (imgNum < fileslength) {  // Если массив еще не кончился
-        console.log("WOVM - Start next loop - " + imgNum);
-        //enumeration(imgFiledir + files[imgNum]); //Старт следующего цикла
-        setTimeout(enumeration, 1000, imgFiledir + files[imgNum]); // Если нет файла запускаем еще раз с задержкой 1с
-      }
-
     }
+    return p;
+  }, []);
 
+
+  console.log(files);
+
+  enumeration(files, dir_enumeration, 0, function(err) { // Передаем внутрь массив файлов и каталог расположения 
+    console.log("Start enumeration" + dir_enumeration);
+    if (err) console.log(err);
+    dirNum++;
+    if (dirNum < dirslength) { // проверка на конец массива
+      enumerationAllDir(imgdirs[dirNum]);
+    }
   });
-
 }
 
-/* 
-// тест 
-checkHashfile(imgFilePathFirst, (err, data) => {
-  console.log("start callback err " + err);
-  console.log("start callback data " + data);
-});
- */
 
+
+
+/////////////////////////////////////////// Перебор файлов /////////////////////////////////////////////
+
+
+
+function enumeration(files, imgFiledir, imgNum, callback2) { // Последовательный перебор значения
+  //let imgNum = 0;
+  const fileslength = files.length; //Запоминаем длинну массива файлов конкретной директории
+  const fullImgPach = imgFiledir + files[imgNum];
+  const finalcallback = callback2;
+
+  console.log("fileslength: " + fileslength + " step - " + imgNum);
+
+
+
+  enumerationFile(fullImgPach, function (err) {
+    
+    if (err) console.log(err);
+
+    imgNum++;
+
+    if (imgNum < fileslength) {
+      console.log("Statrt iteration " + imgNum + " of folder " + imgFiledir);
+      enumeration(files, imgFiledir, imgNum, callback2); // Возможно излишня нагрузка на систему передавать несколько раз один массив.
+
+    } else {
+      console.log("finish folser " + imgFiledir);
+      // console.log(err);
+      finalcallback();
+    }
+
+  }); 
+
+
+  
+}
+
+
+
+function enumerationFile(fullimgpach, callback) {
+  checkHashfile(fullimgpach, (err, data) => { // Проверка конкретного значения и перзапуск петли
+    console.log("start callback img_enumeration - checkHashfile  " + fullimgpach + ". data: " + data);
+    if (!data) {
+      // Ставим водный знак на конкретный файл
+      console.log("start  watermark - " + fullimgpach);
+      watermark.embedWatermarkWithCb(fullimgpach, options, function (err) {
+        if (err) console.log(err);
+        if (!err) {
+          makeHashfile(fullimgpach); //Создаем Hash файл
+          console.log("Successful " + fullimgpach);
+        }
+        console.log("Finish enumerationFile and  Hash " + fullimgpach);
+        callback(); // Завершили обработку данного файла 
+      });
+    } else {
+      console.log("Finish enumerationFile " + fullimgpach);
+      callback(); // Завершили обработку данного файла 
+      //setTimeout(callback, 1000);
+
+    }
+  });
+}
+
+
+/////////////////////////////////////////// функции над файлами /////////////////////////////////////////////
 
 // проверяем соовтествует ли Hash имеющемуся файлу - boolean
 // false - или Шеша нет или он не соответствует
@@ -154,13 +145,10 @@ function checkHashfile(img, callback) {
   imghash.setEncoding("hex");
 
 
-
   //Проверка существования файла Hash
   fs.readFile(HashFileName, (err, data) => {
     if (err) {
       console.log("no file " + HashFileName);
-      //return false;
-      //throw (err);
       return callback(err, false);
     } else {
       console.log("file have " + HashFileName);
@@ -172,30 +160,22 @@ function checkHashfile(img, callback) {
       // making digest
       imgfd.on("end", function () {
         const hashimg = imghash.digest("hex");
-        console.log(hashimg);
-        console.log(HashFile);
+        //console.log(hashimg);
+        //console.log(HashFile);
         if (hashimg === HashFile) {
           console.log("HashFileName - true " + img);
-          //return true;
           return callback(null, true);
         } else {
           console.log("HashFileName - false " + img);
-          //return false
           return callback(null, false);
         }
-
       });
-
       //fd.pipe(hash);
-
     }
 
   });
 
-
   console.log("Finish checkHashfile " + HashFileName);
-
-
 
 }
 
@@ -214,14 +194,8 @@ function makeHashfile(img) {
     let HashFileName = img + ".hash";
     console.log(HashFileName);
     //fs.appendFileSync(HashFileName, `${hash.read()}`);
-    fs.writeFileSync(HashFileName, `${hash.read()}`);
+    fs.writeFile(HashFileName, `${hash.read()}`);
   });
 
   fd.pipe(hash);
 }
-
-
-
-console.log("Finish update img");
-
-
